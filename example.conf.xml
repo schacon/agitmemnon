@@ -1,0 +1,7 @@
+<Tables>
+  <Table Name="Agitmemnon">
+      <ColumnFamily ColumnSort="Time" Name="Objects" /> <!-- [sha] type, size, chunk, deltabase, data -->
+      <ColumnFamily ColumnType="Super" ColumnSort="Name" Name="References" /> <!-- [userrepo] refs (ref => sha) -->
+      <ColumnFamily ColumnSort="Name" Name="CommitTree" /> <!-- [sha] chain [ref:parent\nref:parent\n], sequence, final? -->
+  </Table>
+</Tables>

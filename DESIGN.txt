@@ -1,0 +1,44 @@
+Purpose: 
+
+Post-recieve mirrors much Git data into Cassandra, so we can have distributed reads for majority of Git calls:
+
+  v0.1:
+  - Single Commit / Tag / Tree reads
+  - Small Blob reads (readme)
+  - Commit diffs
+  - Log (from a head)
+
+  v0.2:
+  - Last commit to modify a tree entry since SHA (?)
+  - Reachability (commits reachable from A,B not C,D)
+
+
+Setup and Maint:
+
+  - setup 'Agitmemnon' table in Cassandra (see example conf)
+  - seed with current repo data
+      * Agitmemnon::Repo.new(options, repo_id, path).seed
+  - setup post-receive task to update neccesary data
+      * Agitmemnon::Repo.new(options, repo_id, path).update(refs)
+
+
+Client Usage:
+
+	ag = Agitmemnon.new(options, repo_id) # cassandra info, fast/quorum read
+
+	ag.rev_list(head, limit)
+	ag.log(head, limit)
+	ag.commits([sha1], [sha2, sha3]) # reachable, not_reachable
+
+	ag.refs
+	ag.heads / ag.tags / ag.remotes
+
+	ag.rev_parse(ref)
+
+	ag.commit(sha|ref)
+	ag.tag(sha|ref)
+	ag.blob(sha|ref:path)
+	ag.tree(sha|ref:path)
+	
+	ag.commit_diff(sha|ref)
+	ag.last_commit(sha|ref, path)
