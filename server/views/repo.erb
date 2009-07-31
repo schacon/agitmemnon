@@ -1,0 +1,15 @@
+<h2>Heads</h2>
+<% @repo.refs.each do |type, refs| %>
+  <h3><%= type %></h3>
+  <% refs.each do |ref, value| %>
+    <%= ref %> : <code><%= value %></code><br/>
+  <% end %>
+<% end %>
+
+<h2>Commits</h2>
+<% @repo.log.each do |sha, commit| %>
+  <div>
+    <code><%= sha %></code> 
+    <%= commit['message'] %>
+  </div>
+<% end %>
