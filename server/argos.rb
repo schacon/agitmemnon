@@ -10,6 +10,7 @@ get '/' do
 end
 
 get '/r/:repo' do
-  @repo = Agitmemnon::Client.new(params[:repo])
+  @repo_name = params[:repo]
+  @repo = Agitmemnon::Client.new(@repo_name)
   erb :repo
 end

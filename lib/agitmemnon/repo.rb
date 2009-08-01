@@ -21,7 +21,8 @@ module Agitmemnon
 
     def update_objects
       # get current refs
-      current_refs = @grit.refs.map { |h| h.commit.id }
+      current_refs = @grit.refs.map { |h| h.commit.id }.select { |r| r.size == 40 }
+      pp current_refs
       cass_refs = [] # TODO
       
       # find all commits between that ref and the heads

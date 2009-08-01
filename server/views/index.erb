@@ -1,6 +1,11 @@
-<h1>Repo List:</h1>
-<% @repo_list.each do |key, repo| %>
-  <a href="/r/<%= key %>"><%= key %></a>
-  <%= Time.at(repo['updated']).strftime("%m/%d") %>
-  <br/>
-<% end %>
+<div class="span-21" id="header">
+  <h1>Repositories</h1>
+</div>
+
+<div class="span-21">
+  <% @repo_list.each do |key, repo| %>
+    <%= Time.at(repo['updated']).strftime("%m/%d") %>
+    <a href="/r/<%= key %>"><%= key %></a>
+    <br/>
+  <% end %>
+</div>

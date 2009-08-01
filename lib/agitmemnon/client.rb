@@ -22,12 +22,11 @@ module Agitmemnon
     end
     
     def log(options = {})
-      options = {:count => 10}.merge(options)
+      options = {:count => 25}.merge(options)
       
       shas = [self.head[1]]
-      
       commits = []      
-      while (sha = shas.pop)
+      while (sha = shas.pop) && (commits.size < options[:count])
         pp sha
         commit = @client.get(:Objects, sha, 'json')
         puts commit

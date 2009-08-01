@@ -1,15 +1,27 @@
-<h2>Heads</h2>
-<% @repo.refs.each do |type, refs| %>
-  <h3><%= type %></h3>
-  <% refs.each do |ref, value| %>
-    <%= ref %> : <code><%= value %></code><br/>
-  <% end %>
-<% end %>
+<div style="span-21">
+  <h1><%= @repo_name %></h1>
+</div>
+  
 
 <h2>Commits</h2>
+<table>
 <% @repo.log.each do |sha, commit| %>
-  <div>
-    <code><%= sha %></code> 
-    <%= commit['message'] %>
-  </div>
+  <tr>
+    <td valign="top"><code><%= sha %></code></td>
+    <td><%= commit['message'] %></td>
+  </tr>
 <% end %>
+</table>
+
+<h2>Heads</h2>
+<table>
+<% @repo.refs.each do |type, refs| %>
+  <tr><td colspan="2"><strong><%= type %></strong></td></tr>
+  <% refs.each do |ref, value| %>
+    <tr>
+      <td><%= ref %></td>
+      <td><code><%= value %></code></td>
+    </tr>
+  <% end %>
+<% end %>
+</table>
