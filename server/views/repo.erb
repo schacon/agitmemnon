@@ -1,27 +1,68 @@
-<div style="span-21">
+<script type="text/javascript">
+  $(function() {
+    $("#tabs").tabs();
+    $("#tabs").tabs('select', '#tabs-1');
+  });
+</script>
+
+<div class="grid_12">
   <h1><%= @repo_name %></h1>
 </div>
-  
 
-<h2>Commits</h2>
-<table>
-<% @repo.log.each do |sha, commit| %>
-  <tr>
-    <td valign="top"><code><%= sha %></code></td>
-    <td><%= commit['message'] %></td>
-  </tr>
-<% end %>
-</table>
+<div class="grid_12" id="tabs">
+	<ul>
+		<li><a href="#tabs-1">Commits</a></li>
+		<li><a href="#tabs-2">Tree</a></li>
+		<li><a href="#tabs-3">Refs</a></li>
+	</ul>
 
-<h2>Heads</h2>
-<table>
-<% @repo.refs.each do |type, refs| %>
-  <tr><td colspan="2"><strong><%= type %></strong></td></tr>
-  <% refs.each do |ref, value| %>
-    <tr>
-      <td><%= ref %></td>
-      <td><code><%= value %></code></td>
-    </tr>
-  <% end %>
-<% end %>
-</table>
+  <div class="grid_11" id="tabs-1">
+    <% @repo.log.each do |sha, commit| %>
+      <div class="grid_10 commit">
+        <div class="grid_7 alpha">
+          <div class="author">
+            Author: <%= CGI.escapeHTML(commit['author']) %><br/>
+            Commit: <%= CGI.escapeHTML(commit['committer']) %><br/>
+          </div>
+          <div class="message">
+            <%= commit['message'] %>
+          </div>
+        </div>
+        <div class="grid_3 omega" style="text-align:right">
+          commit: <code><%= sha[0, 10] %></code><br/>
+          tree: <code><%= commit['tree'][0, 10] %></code><br/>
+          <% commit['parents'].each do |parent| %>
+            parent: <code><%= parent[0, 10] %></code><br/>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="grid_11" id="tabs-2">
+    <table>
+      <% @repo.tree.each do |name, hash| %>
+        <tr>
+          <td><code><%= hash['sha'][0,10] %></code></td>
+          <td><code><%= hash['type'] %></code></td>
+          <td><%= name %></td>
+        </tr>
+      <% end %>
+    </table>
+  </div>
+
+  <div style="grid_11" id="tabs-3">
+    <table>
+    <% @repo.refs.each do |type, refs| %>
+      <tr><td colspan="2"><strong><%= type %></strong></td></tr>
+      <% refs.each do |ref, value| %>
+        <tr>
+          <td><%= ref %></td>
+          <td><code><%= value %></code></td>
+        </tr>
+      <% end %>
+    <% end %>
+    </table>
+  </div>
+
+</div>

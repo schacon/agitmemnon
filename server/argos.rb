@@ -3,6 +3,7 @@
 require 'rubygems'
 require 'sinatra'
 require 'lib/agitmemnon'
+require 'cgi'
 
 get '/' do
   @repo_list = Agitmemnon::Client.repo_list

@@ -38,6 +38,9 @@ module Agitmemnon
         if obj.type.to_s == 'commit'
           json = Grit::GitRuby::GitObject.from_raw(obj).to_hash.to_json
           object['json'] = json
+        elsif obj.type.to_s == 'tree'
+          json = Grit::GitRuby::GitObject.from_raw(obj).to_hash.to_json
+          object['json'] = json
         end
         @client.insert(:Objects, sha, object)      
       end

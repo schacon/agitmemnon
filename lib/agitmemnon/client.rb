@@ -21,21 +21,27 @@ module Agitmemnon
       self.refs['heads'].to_a.first
     end
     
+    def tree(rev = nil)
+      rev = self.head[1] if !rev
+      commit = @client.get(:Objects, rev, 'json')
+      commit = JSON.parse(commit)
+      tree_sha = commit['tree']
+      tree = @client.get(:Objects, tree_sha, 'json')
+      tree = JSON.parse(tree).sort
+    end
+    
     def log(options = {})
       options = {:count => 25}.merge(options)
       
       shas = [self.head[1]]
       commits = []      
       while (sha = shas.pop) && (commits.size < options[:count])
-        pp sha
         commit = @client.get(:Objects, sha, 'json')
-        puts commit
         commit = JSON.parse(commit)
         commits << [sha, commit]
         shas << commit['parents'] if commit['parents']
         shas = shas.flatten
       end
-      pp commits
       commits
     end
         
