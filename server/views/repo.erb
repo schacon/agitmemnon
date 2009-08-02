@@ -12,8 +12,9 @@
 <div class="grid_12" id="tabs">
 	<ul>
 		<li><a href="#tabs-1">Commits</a></li>
-		<li><a href="#tabs-2">Tree</a></li>
-		<li><a href="#tabs-3">Refs</a></li>
+		<li><a href="#tabs-2">Shortlog</a></li>
+		<li><a href="#tabs-3">Tree</a></li>
+		<li><a href="#tabs-4">Refs</a></li>
 	</ul>
 
   <div class="grid_11" id="tabs-1">
@@ -40,6 +41,18 @@
   </div>
 
   <div class="grid_11" id="tabs-2">
+    <table class="shortlog">
+    <% @repo.log.each do |sha, commit| %>
+      <tr>
+        <td><code><%= sha[0, 10] %></code></td>
+        <td><%= commit['author'].split.first %></td>
+        <td><%= commit['message'][0, 80] %></td>
+      </tr>
+    <% end %>
+    </table>
+  </div>
+
+  <div class="grid_11" id="tabs-3">
     <table>
       <% @repo.tree.each do |name, hash| %>
         <tr>
@@ -51,7 +64,7 @@
     </table>
   </div>
 
-  <div style="grid_11" id="tabs-3">
+  <div style="grid_11" id="tabs-4">
     <table>
     <% @repo.refs.each do |type, refs| %>
       <tr><td colspan="2"><strong><%= type %></strong></td></tr>

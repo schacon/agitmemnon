@@ -31,7 +31,7 @@ module Agitmemnon
     end
     
     def log(options = {})
-      options = {:count => 25}.merge(options)
+      options = {:count => 30}.merge(options)
       
       shas = [self.head[1]]
       commits = []      

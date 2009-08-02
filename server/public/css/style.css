@@ -8,3 +8,5 @@
 
 .commit .message { color: #444; padding: 8px; }
 .commit .author { font-size: 12px; }
+
+.shortlog { font-size: 12px; }
