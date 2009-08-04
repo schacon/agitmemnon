@@ -22,7 +22,6 @@ module Agitmemnon
     def update_objects
       # get current refs
       current_refs = @grit.refs.map { |h| h.commit.id }.select { |r| r.size == 40 }
-      pp current_refs
       cass_refs = [] # TODO
       
       # find all commits between that ref and the heads
@@ -31,13 +30,18 @@ module Agitmemnon
       objects = @grit.objects("#{need_refs} #{have_refs}")
 
       # foreach object
+      counter = 0
       objects.each do |sha|
         obj = @grit.git.ruby_git.get_raw_object_by_sha1(sha)
-        puts "#{obj.type}:#{obj.content.size}:#{sha}"
-        object = {'type' => obj.type, 'size' => obj.content.length, 'data' => Base64.encode64(Zlib::Deflate.deflate(obj.content)) }
+        #puts "#{obj.type}:#{obj.content.size}:#{sha}"
+        object = {'type' => obj.type, 
+                  'size' => obj.content.length, 
+                  'data' => Base64.encode64(Zlib::Deflate.deflate(obj.content)) }
         if obj.type.to_s == 'commit'
-          json = Grit::GitRuby::GitObject.from_raw(obj).to_hash.to_json
-          object['json'] = json
+          commit_hash = Grit::GitRuby::GitObject.from_raw(obj).to_hash
+          object['json'] = commit_hash.to_json
+          @client.insert(:CommitTree, @repo_handle, {sha => commit_hash}) if counter <= 30
+          counter += 1
         elsif obj.type.to_s == 'tree'
           json = Grit::GitRuby::GitObject.from_raw(obj).to_hash.to_json
           object['json'] = json

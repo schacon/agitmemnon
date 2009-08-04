@@ -1,6 +1,8 @@
 module Agitmemnon
   class Client
     
+    attr_accessor :client, :repo_handle
+    
     def initialize(repo_handle)
       raise if repo_handle == '__main_listing__'  # reserved word      
       @client = CassandraClient.new(Agitmemnon.table)
@@ -19,6 +21,10 @@ module Agitmemnon
     def head
       # TODO: record the HEAD
       self.refs['heads'].to_a.first
+    end
+    
+    def get(sha)
+      @client.get(:Objects, sha)
     end
     
     def tree(rev = nil)

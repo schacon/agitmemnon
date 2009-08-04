@@ -17,17 +17,16 @@ Setup and Maint:
 
   - setup 'Agitmemnon' table in Cassandra (see example conf)
   - seed with current repo data
-      * Agitmemnon::Repo.new(repo_id, path, options).seed
+      * Agitmemnon::Repo.new(repo_id, path).update
   - setup post-receive task to update neccesary data
-      * Agitmemnon::Repo.new(repo_id, path, options).update(refs)
-
+      * Agitmemnon::Repo.new(repo_id, path).update
 
 Client Usage:
 
-	ag = Agitmemnon.new(repo_id, options) # cassandra info, fast/quorum read
+	ag = Agitmemnon.new(repo_id) # cassandra info, fast/quorum read
 
-	ag.rev_list(head, limit)
-	ag.log(head, limit)
+	ag.rev_list({:head, :limit})
+	ag.log({:head, :limit})
 	ag.commits([sha1], [sha2, sha3]) # reachable, not_reachable
 
 	ag.refs

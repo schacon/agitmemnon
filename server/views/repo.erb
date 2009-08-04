@@ -30,10 +30,10 @@
           </div>
         </div>
         <div class="grid_3 omega" style="text-align:right">
-          commit: <code><%= sha[0, 10] %></code><br/>
-          tree: <code><%= commit['tree'][0, 10] %></code><br/>
+          commit <code><%= sha[0, 10] %></code><br/>
+          tree <code><%= commit['tree'][0, 10] %></code><br/>
           <% commit['parents'].each do |parent| %>
-            parent: <code><%= parent[0, 10] %></code><br/>
+            parent <code><%= parent[0, 10] %></code><br/>
           <% end %>
         </div>
       </div>
@@ -53,7 +53,7 @@
   </div>
 
   <div class="grid_11" id="tabs-3">
-    <table>
+    <table class="tree">
       <% @repo.tree.each do |name, hash| %>
         <tr>
           <td><code><%= hash['sha'][0,10] %></code></td>
@@ -65,7 +65,7 @@
   </div>
 
   <div style="grid_11" id="tabs-4">
-    <table>
+    <table class="refs">
     <% @repo.refs.each do |type, refs| %>
       <tr><td colspan="2"><strong><%= type %></strong></td></tr>
       <% refs.each do |ref, value| %>
