@@ -19,7 +19,7 @@ end
 get '/r/:repo/commit/:sha' do
   @repo_name = params[:repo]
   @repo = Agitmemnon::Client.new(@repo_name)
-  @patch = @repo.client.get(:CommitDiffs, @repo_name, params[:sha])
+  @patch = @repo.diff(params[:sha])
   erb :commit, :layout => false
 end
 

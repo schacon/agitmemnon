@@ -27,6 +27,10 @@ module Agitmemnon
       @client.get(:Objects, sha)
     end
     
+    def diff(sha)
+      client.get(:CommitDiffs, @repo_name, sha)
+    end
+    
     def tree(rev = nil)
       rev = self.head[1] if !rev
       commit = @client.get(:Objects, rev, 'json')

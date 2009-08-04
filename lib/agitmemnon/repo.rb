@@ -12,7 +12,6 @@ module Agitmemnon
 
     def update
       update_objects
-      update_commit_cache
       update_refs
       update_repo_info
     end
@@ -29,8 +28,10 @@ module Agitmemnon
       need_refs = (current_refs - cass_refs).join(' ')
       objects = @grit.objects("#{need_refs} #{have_refs}")
 
+      puts objects.size
       # foreach object
       objects.each do |sha|
+        puts sha
         obj = @grit.git.ruby_git.get_raw_object_by_sha1(sha)
         #puts "#{obj.type}:#{obj.content.size}:#{sha}"
         object = {'type' => obj.type, 
@@ -40,18 +41,18 @@ module Agitmemnon
           commit_hash = Grit::GitRuby::GitObject.from_raw(obj).to_hash
           object['json'] = commit_hash.to_json
           diff = grit.diff(sha, "#{sha}^")
-          @client.insert(:CommitDiffs, @repo_handle, {sha => diff})
+          @client.insert(:CommitDiffs, sha, {'diff' => diff}) # TODO : colored diff?
+
+          obs = @grit.diff_objects(sha, commit_hash['parents'].size > 0)
+          revtree = { 'parents' => commit_hash['parents'].join(":"), 
+                      'objects' => obs.join(":") }
+          @client.insert(:RevTree, @repo_handle, {sha => revtree})
         elsif obj.type.to_s == 'tree'
           json = Grit::GitRuby::GitObject.from_raw(obj).to_hash.to_json
           object['json'] = json
         end
         @client.insert(:Objects, sha, object)      
       end
-    end
-
-    def update_commit_cache
-      #gh.insert(:CommitTree, prname, {'revlist' => commit_list.join("\n")})
-      #puts counter
     end
 
     def update_refs
