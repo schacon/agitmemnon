@@ -1,0 +1,11 @@
+<div>
+  <table class="tree">
+    <% @repo.tree.each do |name, hash| %>
+      <tr>
+        <td><code><%= hash['sha'][0,10] %></code></td>
+        <td><code><%= hash['type'] %></code></td>
+        <td><%= name %></td>
+      </tr>
+    <% end %>
+  </table>
+</div>

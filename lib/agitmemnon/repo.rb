@@ -30,7 +30,6 @@ module Agitmemnon
       objects = @grit.objects("#{need_refs} #{have_refs}")
 
       # foreach object
-      counter = 0
       objects.each do |sha|
         obj = @grit.git.ruby_git.get_raw_object_by_sha1(sha)
         #puts "#{obj.type}:#{obj.content.size}:#{sha}"
@@ -40,8 +39,8 @@ module Agitmemnon
         if obj.type.to_s == 'commit'
           commit_hash = Grit::GitRuby::GitObject.from_raw(obj).to_hash
           object['json'] = commit_hash.to_json
-          @client.insert(:CommitTree, @repo_handle, {sha => commit_hash}) if counter <= 30
-          counter += 1
+          diff = grit.diff(sha, "#{sha}^")
+          @client.insert(:CommitDiffs, @repo_handle, {sha => diff})
         elsif obj.type.to_s == 'tree'
           json = Grit::GitRuby::GitObject.from_raw(obj).to_hash.to_json
           object['json'] = json

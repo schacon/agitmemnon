@@ -2,19 +2,32 @@
   $(function() {
     $("#tabs").tabs();
     $("#tabs").tabs('select', '#tabs-1');
+    $("#commit-diff").dialog({ autoOpen: false });
   });
+  
+  function showCommit(sha) {
+    $("#commit-diff").html('');
+    $.get("/r/<%= @repo_name %>/commit/" + sha, function(data) {
+      $("#commit-diff").html(data);
+    });
+    $("#commit-diff").dialog('open');    
+    return false;
+  }
 </script>
 
 <div class="grid_12">
   <h1><%= @repo_name %></h1>
 </div>
 
+<div id="commit-diff">
+  <code id="sha"></code>
+</div>
+  
 <div class="grid_12" id="tabs">
 	<ul>
 		<li><a href="#tabs-1">Commits</a></li>
 		<li><a href="#tabs-2">Shortlog</a></li>
-		<li><a href="#tabs-3">Tree</a></li>
-		<li><a href="#tabs-4">Refs</a></li>
+		<li><a href="#tabs-3">Refs</a></li>
 	</ul>
 
   <div class="grid_11" id="tabs-1">
@@ -30,7 +43,7 @@
           </div>
         </div>
         <div class="grid_3 omega" style="text-align:right">
-          commit <code><%= sha[0, 10] %></code><br/>
+          commit <code><a onClick="showCommit('<%= sha %>')"><%= sha[0, 10] %></a></code><br/>
           tree <code><%= commit['tree'][0, 10] %></code><br/>
           <% commit['parents'].each do |parent| %>
             parent <code><%= parent[0, 10] %></code><br/>
@@ -52,19 +65,7 @@
     </table>
   </div>
 
-  <div class="grid_11" id="tabs-3">
-    <table class="tree">
-      <% @repo.tree.each do |name, hash| %>
-        <tr>
-          <td><code><%= hash['sha'][0,10] %></code></td>
-          <td><code><%= hash['type'] %></code></td>
-          <td><%= name %></td>
-        </tr>
-      <% end %>
-    </table>
-  </div>
-
-  <div style="grid_11" id="tabs-4">
+  <div style="grid_11" id="tabs-3">
     <table class="refs">
     <% @repo.refs.each do |type, refs| %>
       <tr><td colspan="2"><strong><%= type %></strong></td></tr>

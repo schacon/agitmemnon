@@ -15,3 +15,16 @@ get '/r/:repo' do
   @repo = Agitmemnon::Client.new(@repo_name)
   erb :repo
 end
+
+get '/r/:repo/commit/:sha' do
+  @repo_name = params[:repo]
+  @repo = Agitmemnon::Client.new(@repo_name)
+  @patch = @repo.client.get(:CommitDiffs, @repo_name, params[:sha])
+  erb :commit, :layout => false
+end
+
+get '/r/:repo/tree/:sha' do
+  @repo_name = params[:repo]
+  @repo = Agitmemnon::Client.new(@repo_name)
+  erb :tree, :layout => false
+end

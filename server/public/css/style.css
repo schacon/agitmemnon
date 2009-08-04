@@ -6,7 +6,7 @@
     background: #fff;
 }
 
-.commit .message { color: #444; padding: 8px; }
+.commit .message { color: #000; padding: 8px 0; }
 .commit .author { font-size: 12px; }
 
 .shortlog { font-size: 12px; }
