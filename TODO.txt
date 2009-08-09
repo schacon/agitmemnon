@@ -2,18 +2,20 @@ VERSION 1:
 
 * make the trees drill-down
 
-* commit ranges / date ranges
+* re-focus on another commit
+
+
+* commit ranges
 
 * last commit for a tree entry
-
-* re-focus on another commit
 
 * revlist page caching
 
 
 VERSION 2:
 
-* tarball
+* large object sharding
 
 * git-daemon that serves
 
+* tarball

@@ -5,12 +5,12 @@ module Agitmemnon
     
     def initialize(repo_handle)
       raise if repo_handle == '__main_listing__'  # reserved word      
-      @client = CassandraClient.new(Agitmemnon.table)
+      @client = Cassandra.new(Agitmemnon.table)
       @repo_handle = repo_handle
     end
     
     def self.repo_list
-      client = CassandraClient.new(Agitmemnon.table)
+      client = Cassandra.new(Agitmemnon.table)
       client.get(:Repositories, '__main_listing__')
     end
     

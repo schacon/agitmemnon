@@ -5,7 +5,7 @@ module Agitmemnon
 
     def initialize(repo_handle, path)
       raise if repo_handle == '__main_listing__'  # reserved word      
-      @client = CassandraClient.new(Agitmemnon.table)
+      @client = Cassandra.new(Agitmemnon.table)
       @repo_handle = repo_handle
       @grit = Grit::Repo.new(path)
     end
@@ -34,15 +34,20 @@ module Agitmemnon
         puts sha
         obj = @grit.git.ruby_git.get_raw_object_by_sha1(sha)
         #puts "#{obj.type}:#{obj.content.size}:#{sha}"
-        object = {'type' => obj.type, 
-                  'size' => obj.content.length, 
+        object = {'type' => obj.type.to_s, 
+                  'size' => obj.content.length.to_s, 
                   'data' => Base64.encode64(Zlib::Deflate.deflate(obj.content)) }
         if obj.type.to_s == 'commit'
+          # save the jsonified version
           commit_hash = Grit::GitRuby::GitObject.from_raw(obj).to_hash
           object['json'] = commit_hash.to_json
-          diff = grit.diff(sha, "#{sha}^")
-          @client.insert(:CommitDiffs, sha, {'diff' => diff}) # TODO : colored diff?
+          @client.insert(:Objects, sha, object)      
+          
+          # save the commit diff
+          #diff = grit.diff(sha, "#{sha}^")
+          #@client.insert(:CommitDiffs, sha, {'diff' => diff}) # TODO : colored diff?
 
+          # save the object and parentage list
           obs = @grit.diff_objects(sha, commit_hash['parents'].size > 0)
           revtree = { 'parents' => commit_hash['parents'].join(":"), 
                       'objects' => obs.join(":") }
@@ -50,8 +55,13 @@ module Agitmemnon
         elsif obj.type.to_s == 'tree'
           json = Grit::GitRuby::GitObject.from_raw(obj).to_hash.to_json
           object['json'] = json
+          @client.insert(:Objects, sha, object)      
+        elsif obj.type.to_s == 'tag'
+          @client.insert(:Objects, sha, object)      
+        elsif obj.type.to_s == 'blob'
+          # TODO check to see if this object is small enough, otherwise split it up
+          @client.insert(:Objects, sha, object)      
         end
-        @client.insert(:Objects, sha, object)      
       end
     end
 
@@ -73,7 +83,7 @@ module Agitmemnon
     end
     
     def update_repo_info
-      @client.insert(:Repositories, '__main_listing__', {@repo_handle => {'updated' => Time.now.to_i}})
+      @client.insert(:Repositories, '__main_listing__', {@repo_handle => {'updated' => Time.now.to_i.to_s}})
     end
 
   end

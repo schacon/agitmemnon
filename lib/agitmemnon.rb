@@ -1,12 +1,13 @@
 $:.unshift File.dirname(__FILE__) # For use/testing when no gem is installed
 
 require 'rubygems'
-require 'cassandra_client'
 require 'base64'
 require 'logger'
 require 'json'
 require 'pp'
 
+#require 'cassandra'
+require '/Users/schacon/projects/cassandra_client/lib/cassandra'
 require '/Users/schacon/projects/github/vendor/gems/grit/lib/grit'
 
 require 'agitmemnon/repo'
