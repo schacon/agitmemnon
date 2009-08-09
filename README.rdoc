@@ -1,6 +1,44 @@
-= agitmemnon
+= Agitmemnon
 
-Description goes here.
+Agitmemnon is a Ruby library for filling and interacting with a Cassandra cluster with
+a specific keyspace for storing Git repository data.  This library can take a Git repo
+on disk and fill the Cassandra keyspace with all the data it needs, then can be used
+to get Git data back out of it.
+
+Currently the Cassandra keyspace looks something like this:
+
+    <Keyspaces>
+        <Keyspace Name="Agitmemnon">
+            <ColumnFamily CompareWith="UTF8Type" Name="Objects"/>
+            <ColumnFamily ColumnType="Super" CompareWith="UTF8Type" CompareSubcolumnsWith="UTF8Type" Name="Repositories"/>
+            <ColumnFamily CompareWith="UTF8Type" Name="CommitDiffs"/>
+            <ColumnFamily ColumnType="Super" CompareWith="UTF8Type" CompareSubcolumnsWith="UTF8Type" Name="RevTree"/>
+        </Keyspace>
+    </Keyspaces>
+
+The Repository column family keeps one row per repository, which holds all the current
+references and the last updated (push) time.  The Objects column family holds one row
+per Git object, with the SHA-1 of the object as the key.  This allows one global space
+for all the repositories objects.  The CommitDiffs family is used to keep the diff of
+each commit for fast retrieval.  Finally, the RevTree family is keeping the commit
+revlist and difftree for each repository (though I'm not sure if I want to do it this 
+way yet - if so, I'll have to shard the rows for larger repos).
+
+I've also included a small Sinatra app that uses Agitmemnon to run a GitWeb style web UI,
+but it's just for testing stuff out and isn't very fully featured yet.
+
+Right now this works pretty well for smaller repositories. To scale up, we need to be
+able to fragment large blobs into multiple smaller Object entries and then pull them
+together on clones.  I also want to add a column family for partial packfile caches, so
+I can precalculate groups of objects and pull hundreds of small commit/tree objects out 
+of the db at once on clones.
+
+For cloning, I've also created a git-daemon (by modifying the dulwich project) that will
+actually run clones out of Agitmemnon.  You can find this project here:
+
+http://github.com/schacon/agitmemnon-server
+
+Soon, this project will help in scaling Git to the MOON!
 
 == Copyright
 
