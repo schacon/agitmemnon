@@ -1,6 +1,37 @@
 module Agitmemnon
   class Repo
 
+    OBJ_NONE = 0
+    OBJ_COMMIT = 1
+    OBJ_TREE = 2
+    OBJ_BLOB = 3
+    OBJ_TAG = 4
+    OBJ_OFS_DELTA = 6
+    OBJ_REF_DELTA = 7
+
+    MAX_SIZE = 100_000
+
+    class PackFragment < StringIO
+      attr_reader :objtype, :base_sha, :object_size
+      def process
+        c = self.read(1).getord(0)
+        @object_size = c & 0xf
+        @objtype = (c >> 4) & 7
+        shift = 4
+        offset = 1
+        while c & 0x80 != 0
+          c = self.read(1).getord(0)
+          @object_size |= ((c & 0x7f) << shift)
+          shift += 7
+          offset += 1
+        end
+
+        if @objtype == OBJ_REF_DELTA
+        end
+        @base_sha = nil
+      end
+    end
+    
     attr_accessor :repo_handle, :grit, :client
 
     def initialize(repo_handle, path)
@@ -10,16 +41,17 @@ module Agitmemnon
       @grit = Grit::Repo.new(path)
     end
 
-    def update
-      update_objects
+    def update(initial_flag = true)
+      update_objects(initial_flag)
       update_refs
       update_repo_info
     end
 
     protected
 
-    def update_objects
+    def update_objects(initial_flag)
       # get current refs
+      if false
       current_refs = @grit.refs.map { |h| h.commit.id }.select { |r| r.size == 40 }
       cass_refs = [] # TODO
       
@@ -27,8 +59,68 @@ module Agitmemnon
       have_refs = (cass_refs - current_refs).map { |r| "^#{r}"}.join(' ')
       need_refs = (current_refs - cass_refs).join(' ')
       objects = @grit.objects("#{need_refs} #{have_refs}")
+      end
 
-      puts objects.size
+      #load_objects(objects)
+      if initial_flag
+        load_packfile_caches
+      end
+    end
+
+    def load_packfile_caches
+      # go through the existing packfiles looking for groups of objects within objlist
+      # add 1M at a time into cassandra
+      # remove from objlist
+
+      cp = {:data => '', :size => 0, :count => 0}
+      cp_entries = []
+
+      puts @grit.path
+      exit
+      
+      shas = {}
+      @grit.git.ruby_git.packs.each do |pack|
+        pack_data = []
+        total_size = File.size(pack.name)
+        
+        pack.each_entry do |sha, offset|
+          sha = sha.unpack("H*").first
+          pack_data << [offset, sha]
+        end
+
+        last = nil
+        final = []
+        pack_data = pack_data.sort
+        pp pack_data
+        
+        pack_data.each do |offset, sha|
+          if last
+            size = offset - last[0]
+            final << [last[1], last[0], size]
+          end
+          last = [offset, sha]
+        end
+        size = total_size - last[0]
+        final << [last[1], last[0], size]
+        
+        # read each of the objects and put them into a binary blob 
+        # to be sent to cassandra
+        packfile = File.open(pack.name, 'rb')
+        final.each do |sha, offset, size|
+          if size < MAX_SIZE
+            packfile.seek(offset)
+            data = PackFragment.new(packfile.read(size, 'rb'))
+            data.process
+            puts [sha, data.size, data.object_size, data.objtype, data.base_sha].join("\t")
+          end
+        end
+      end
+      
+      # PackCacheIndex (projectname) [(cache_key) => (list of objects/offset/size), ...]
+      # PackCache (cache_key) [:size => (size), :count => (count), :data => (list of objects)]
+    end
+
+    def load_objects(objects)
       # foreach object
       objects.each do |sha|
         puts sha
@@ -62,7 +154,8 @@ module Agitmemnon
           # TODO check to see if this object is small enough, otherwise split it up
           @client.insert(:Objects, sha, object)      
         end
-      end
+      end      
+      
     end
 
     def update_refs
