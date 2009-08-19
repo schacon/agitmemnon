@@ -12,6 +12,7 @@ module Agitmemnon
     OBJ_REF_DELTA = 7
 
     MAX_SIZE = 100_000
+    SHA1Size = 20
 
     class PackFragment < StringIO
       attr_reader :objtype, :base_sha, :object_size
@@ -29,8 +30,12 @@ module Agitmemnon
         end
 
         if @objtype == OBJ_REF_DELTA
+          @base_sha = self.read(SHA1Size).unpack("H*").first
         end
-        @base_sha = nil
+      end
+      
+      def include?
+        @objtype != OBJ_OFS_DELTA
       end
     end
     
