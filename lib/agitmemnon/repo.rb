@@ -1,3 +1,5 @@
+require 'tempfile'
+
 module Agitmemnon
   class Repo
 
@@ -72,47 +74,54 @@ module Agitmemnon
       # add 1M at a time into cassandra
       # remove from objlist
 
+      puts "Generating Packfile"
+
+      packname = @repo_handle + Digest::SHA1.hexdigest(Time.now().to_s)
+      packfile_pack = '/tmp/' + packname + '.pack'
+      packfile_idx = '/tmp/' + packname + '.idx'
+      Dir.chdir(@grit.path) do
+        `git rev-list --objects master | git pack-objects --stdout > #{packfile_pack}`
+        `git index-pack -o #{packfile_idx} #{packfile_pack}`
+      end
+      
+      pack = Grit::GitRuby::Internal::PackStorage.new(packfile_pack)
+      
+      shas = {}
+      pack_data = []
+      total_size = File.size(packfile_pack)
+      
+      pack.each_entry do |sha, offset|
+        sha = sha.unpack("H*").first
+        pack_data << [offset, sha]
+      end
+
+      last = nil
+      final = []
+      pack_data = pack_data.sort
+      pp pack_data
+      
+      pack_data.each do |offset, sha|
+        if last
+          size = offset - last[0]
+          final << [last[1], last[0], size]
+        end
+        last = [offset, sha]
+      end
+      size = total_size - last[0]
+      final << [last[1], last[0], size]
+      
       cp = {:data => '', :size => 0, :count => 0}
       cp_entries = []
 
-      puts @grit.path
-      exit
-      
-      shas = {}
-      @grit.git.ruby_git.packs.each do |pack|
-        pack_data = []
-        total_size = File.size(pack.name)
-        
-        pack.each_entry do |sha, offset|
-          sha = sha.unpack("H*").first
-          pack_data << [offset, sha]
-        end
-
-        last = nil
-        final = []
-        pack_data = pack_data.sort
-        pp pack_data
-        
-        pack_data.each do |offset, sha|
-          if last
-            size = offset - last[0]
-            final << [last[1], last[0], size]
-          end
-          last = [offset, sha]
-        end
-        size = total_size - last[0]
-        final << [last[1], last[0], size]
-        
-        # read each of the objects and put them into a binary blob 
-        # to be sent to cassandra
-        packfile = File.open(pack.name, 'rb')
-        final.each do |sha, offset, size|
-          if size < MAX_SIZE
-            packfile.seek(offset)
-            data = PackFragment.new(packfile.read(size, 'rb'))
-            data.process
-            puts [sha, data.size, data.object_size, data.objtype, data.base_sha].join("\t")
-          end
+      # read each of the objects and put them into a binary blob 
+      # to be sent to cassandra
+      packfile = File.open(pack.name, 'rb')
+      final.each do |sha, offset, size|
+        if size < MAX_SIZE
+          packfile.seek(offset)
+          data = PackFragment.new(packfile.read(size, 'rb'))
+          data.process
+          puts [sha, data.size, data.object_size, data.objtype, data.base_sha].join("\t")
         end
       end
       
