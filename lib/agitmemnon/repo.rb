@@ -11,7 +11,10 @@ module Agitmemnon
     OBJ_OFS_DELTA = 6
     OBJ_REF_DELTA = 7
 
-    MAX_SIZE = 100_000
+    MAX_OBJ_SIZE = 100_000
+    MAX_ROW_SIZE = 1_000_000
+    MIN_ROW_SIZE = 100_000
+    
     SHA1Size = 20
 
     class PackFragment < StringIO
@@ -115,23 +118,45 @@ module Agitmemnon
       size = total_size - last[0]
       final << [last[1], last[0], size]
       
-      cp = {:data => '', :size => 0, :count => 0}
-      cp_entries = []
+      cp = {'data' => '', 'size' => 0, 'count' => 0}
+      cp_entries = ''
 
       # read each of the objects and put them into a binary blob 
       # to be sent to cassandra
       packfile = File.open(pack.name, 'rb')
       final.each do |sha, offset, size|
-        if size < MAX_SIZE
+        if size < MAX_OBJ_SIZE
+          if (cp['size'] + size) > MAX_ROW_SIZE
+            # save data, reset buffers
+            save_data(cp, cp_entries)
+            cp = {'data' => '', 'size' => 0, 'count' => 0}
+            cp_entries = ''
+          end
           packfile.seek(offset)
           data = PackFragment.new(packfile.read(size, 'rb'))
           data.process
-          puts [sha, data.size, data.object_size, data.objtype, data.base_sha].join("\t")
+          #puts [sha, data.size, data.object_size, data.objtype, data.base_sha].join("\t")
+          cp['size'] += data.size
+          cp['data'] += data.read
+          cp['count'] += 1
+          cp_entries += "#{sha}:#{data.base_sha}\n"
         end
       end
-      
-      # PackCacheIndex (projectname) [(cache_key) => (list of objects/offset/size), ...]
-      # PackCache (cache_key) [:size => (size), :count => (count), :data => (list of objects)]
+      save_data(cp, cp_entries)
+    end
+
+    # PackCacheIndex (projectname) [(cache_key) => (list of objects/offset/size), ...]
+    # PackCache (cache_key) [:size => (size), :count => (count), :data => (list of objects)]
+    def save_data(cp, cp_entries)
+      # save cp_entries
+      if cp['size'] > MIN_ROW_SIZE
+        cache_key = @repo_handle + Digest::SHA1.hexdigest(cp_entries)
+        puts "INSERTING:" + cp['data'].size.to_s
+        cp['size'] = cp['size'].to_s
+        cp['count'] = cp['count'].to_s
+        @client.insert(:PackCache, cache_key, cp)
+        @client.insert(:PackCacheIndex, @repo_handle, {cache_key => cp_entries})
+      end
     end
 
     def load_objects(objects)
