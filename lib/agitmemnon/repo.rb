@@ -37,6 +37,11 @@ module Agitmemnon
         end
       end
       
+      def get_raw
+        self.seek(0)
+        self.read
+      end
+      
       def include?
         @objtype != OBJ_OFS_DELTA
       end
@@ -51,28 +56,31 @@ module Agitmemnon
       @grit = Grit::Repo.new(path)
     end
 
-    def update(initial_flag = true)
-      update_objects(initial_flag)
+    def update(load_packfile = true)
+      update_objects(load_packfile)
       update_refs
       update_repo_info
     end
 
     protected
 
-    def update_objects(initial_flag)
+    def update_objects(load_packfile)
       # get current refs
-      if false
       current_refs = @grit.refs.map { |h| h.commit.id }.select { |r| r.size == 40 }
-      cass_refs = [] # TODO
+      crefs = @client.get(:Repositories, @repo_handle)
+      cass_refs = crefs.map { |t, hash| hash.map { |a, sha| sha } } rescue []
+      cass_refs = cass_refs.flatten.uniq.select { |r| r.size == 40 }
       
       # find all commits between that ref and the heads
       have_refs = (cass_refs - current_refs).map { |r| "^#{r}"}.join(' ')
       need_refs = (current_refs - cass_refs).join(' ')
       objects = @grit.objects("#{need_refs} #{have_refs}")
-      end
 
-      #load_objects(objects)
-      if initial_flag
+      puts 'HAVE:' + have_refs
+      puts 'NEED:' + need_refs
+      
+      load_objects(objects)
+      if load_packfile
         load_packfile_caches
       end
     end
@@ -96,7 +104,7 @@ module Agitmemnon
       
       shas = {}
       pack_data = []
-      total_size = File.size(packfile_pack)
+      total_size = File.size(packfile_pack) - 20
       
       pack.each_entry do |sha, offset|
         sha = sha.unpack("H*").first
@@ -106,7 +114,6 @@ module Agitmemnon
       last = nil
       final = []
       pack_data = pack_data.sort
-      pp pack_data
       
       pack_data.each do |offset, sha|
         if last
@@ -136,10 +143,10 @@ module Agitmemnon
           data = PackFragment.new(packfile.read(size, 'rb'))
           data.process
           #puts [sha, data.size, data.object_size, data.objtype, data.base_sha].join("\t")
+          cp_entries += "#{sha}:#{cp['size']}:#{data.size}:#{data.base_sha}\n"
           cp['size'] += data.size
-          cp['data'] += data.read
+          cp['data'] += data.get_raw
           cp['count'] += 1
-          cp_entries += "#{sha}:#{data.base_sha}\n"
         end
       end
       save_data(cp, cp_entries)
@@ -152,6 +159,7 @@ module Agitmemnon
       if cp['size'] > MIN_ROW_SIZE
         cache_key = @repo_handle + Digest::SHA1.hexdigest(cp_entries)
         puts "INSERTING:" + cp['data'].size.to_s
+        cp['data'] = Base64.encode64(cp['data'])
         cp['size'] = cp['size'].to_s
         cp['count'] = cp['count'].to_s
         @client.insert(:PackCache, cache_key, cp)
@@ -210,6 +218,7 @@ module Agitmemnon
       refs['heads']   = heads   if heads.size > 0
       refs['tags']    = tags    if tags.size > 0
       refs['remotes'] = remotes if remotes.size > 0
+      refs['meta']    = {'HEAD' => @grit.head.commit} if @grit.head
       @client.remove(:Repositories, @repo_handle)
       @client.insert(:Repositories, @repo_handle, refs)
     end

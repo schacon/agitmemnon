@@ -28,3 +28,7 @@ get '/r/:repo/tree/:sha' do
   @repo = Agitmemnon::Client.new(@repo_name)
   erb :tree, :layout => false
 end
+
+get '/a' do
+  erb :admin
+end

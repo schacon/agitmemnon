@@ -8,4 +8,4 @@ a = Agitmemnon::Repo.new('fuzed2', '/Users/schacon/projects/fuzed2')
 #a = Agitmemnon::Repo.new('git', '/Users/schacon/projects/git')
 #a = Agitmemnon::Repo.new('testing', '/tmp/test')
 pp a
-a.update
+a.update(false)

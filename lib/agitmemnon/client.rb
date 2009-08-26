@@ -19,8 +19,9 @@ module Agitmemnon
     end
     
     def head
-      # TODO: record the HEAD
-      self.refs['heads'].to_a.first
+      head = self.refs['meta']['HEAD']
+      head = self.refs['heads'].to_a.first if !head
+      head
     end
     
     def get(sha)
@@ -43,14 +44,15 @@ module Agitmemnon
     def log(options = {})
       options = {:count => 30}.merge(options)
       
-      shas = [self.head[1]]
+      shas = [self.head]
       commits = []      
       while (sha = shas.pop) && (commits.size < options[:count])
-        commit = @client.get(:Objects, sha, 'json')
-        commit = JSON.parse(commit)
-        commits << [sha, commit]
-        shas << commit['parents'] if commit['parents']
-        shas = shas.flatten
+        if commit = @client.get(:Objects, sha.to_s, 'json')
+          commit = JSON.parse(commit)
+          commits << [sha, commit]
+          shas << commit['parents'] if commit['parents']
+          shas = shas.flatten
+        end
       end
       commits
     end

@@ -7,7 +7,7 @@
 }
 
 .commit .message { color: #000; padding: 8px 0; }
-.commit .author { font-size: 12px; }
+.commit .author { font-size: 12px;}
 
 .shortlog { font-size: 12px; }
 .tree { font-size: 12px; }

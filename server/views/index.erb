@@ -4,7 +4,7 @@
 
 <div class="span-21">
   <% @repo_list.each do |key, repo| %>
-    <%= Time.at(repo['updated']).strftime("%m/%d") %>
+    <%= Time.at(repo['updated']).strftime("%m/%d") rescue nil %>
     <a href="/r/<%= key %>"><%= key %></a>
     <br/>
   <% end %>
