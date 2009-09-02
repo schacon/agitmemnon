@@ -1,6 +1,7 @@
 Purpose: 
 
-Post-recieve mirrors much Git data into Cassandra, so we can have distributed reads for majority of Git calls:
+Post-recieve mirrors much Git data into Cassandra, so we can have distributed
+reads for majority of Git calls:
 
   v0.1:
   - Single Commit / Tag / Tree reads

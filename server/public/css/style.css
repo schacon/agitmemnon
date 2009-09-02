@@ -1,14 +1,46 @@
-.commit { 
-    border: 1px solid #aaa; 
-    margin: 3px; 
-    padding: 5px;
-    font-size: 14px;
-    background: #fff;
+body {
+    font: 1.0em Verdana, Arial, sans-serif;
+    color: #333333;
+    margin: 0;
+    padding: 0;
 }
 
-.commit .message { color: #000; padding: 8px 0; }
-.commit .author { font-size: 12px;}
+#doc { width: 750px; }
+#bd { background-color: #fff; }
 
-.shortlog { font-size: 12px; }
-.tree { font-size: 12px; }
-.refs { font-size: 12px; }
+#project { 
+    font-size: 2.5em;
+    font-weight: bold;
+    margin-top: 10px;
+    }
+#clone-url { font: 1em Andale Mono, monospace; margin-top: 8px; }
+#sha { text-align: right; font: 1.2em Andale Mono, monospace; }
+
+#hd { background-color: #eee; border-bottom: 1px solid #999; padding: 8px;}
+#hd h1 { font-size: 2em; font-weight: bold; }
+#hd h1 #github { color: #35a;}
+#hd ul li { display: inline; }
+
+#hd #menu { text-align: right; }
+#ghlogo { text-align: right; }
+.centered { text-align: center; }
+
+.files { margin-top: 10px; margin-bottom: 10px; background-color: #eee;}
+.files ul li { padding: 5px; border-bottom: 1px solid #ddd; }
+.files a { color: #117; text-decoration: none; font: 1em Andale Mono, monospace; }
+
+.readme { padding: 20px; background: #eee; }
+
+#info .date { color: #000; }
+
+.last-commit {
+    font-size: 0.9em;
+    border: 1px solid #88c;
+    padding: 5px;
+    margin-top: 25px;
+    background: #eef;
+    vertical-align: center;
+}
+
+#ft { margin-top: 15px; text-align: center; border-top: 1px solid #ddd; padding: 10px;}
+#ft a { color: #338; }
