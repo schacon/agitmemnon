@@ -28,7 +28,12 @@ module Agitmemnon
       end
       def readme
         @tree ||= tree
-        readme_sha = tree['README']['sha'] rescue nil
+        readme_sha = nil
+        @tree.each do |file, info|
+          if file[0, 6] == 'README'
+            readme_sha = info['sha']
+          end
+        end
         if readme_sha
           readme = Client.expand(@client.get(:Objects, readme_sha, 'data'))
           return readme
@@ -59,7 +64,7 @@ module Agitmemnon
 
     def head
       head = self.refs['meta']['HEAD'] rescue nil
-      head = self.refs['heads'].to_a.first[1] if !head
+      head = self.refs['heads'].to_a.first[1] if !head rescue nil
       head
     end
 

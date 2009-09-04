@@ -57,7 +57,7 @@ table.log tr td a { color: #117; text-decoration: none; font: 1em Andale Mono, m
             margin-top: 10px; }
 .refs tr td { padding: 3px; }
 
-.blob { padding: 20px; background: #eee; }
+.blob { padding: 20px; background: #eee; overflow: auto; }
 
 #info .date { color: #000; }
 

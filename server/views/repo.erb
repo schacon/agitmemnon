@@ -26,7 +26,7 @@
     </table>
   </div>
 
-  <% if rm = @commit.readme %>
+  <% if !@path && (rm = @commit.readme) %>
     <div class="yui-g blob">
       <pre><%= rm %></pre>
     </div>
