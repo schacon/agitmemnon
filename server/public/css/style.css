@@ -35,14 +35,19 @@ body {
 #ghlogo { text-align: right; }
 .centered { text-align: center; }
 
-.files { margin-top: 10px; margin-bottom: 10px; background-color: #eee;}
-.files ul li { padding: 5px; border-bottom: 1px solid #ddd; }
-.files a { color: #117; text-decoration: none; font: 1em Andale Mono, monospace; }
+h2.path { font-size: 1.5em; font-weight: bold; margin-top: 20px; }
 
+.files { margin-top: 10px; margin-bottom: 10px; background-color: #eee;}
+.files table { width: 100%; }
+.files tr td { padding: 5px; border-bottom: 1px solid #ddd; }
+.files a { color: #117; text-decoration: none; font: 1em Andale Mono, monospace; }
+.entry-mode,.entry-sha { font: 0.8em Andale Mono, monospace; }
 
 .logs { background: #eee; margin-top: 10px; }
 table.log tr { border-bottom: 1px solid #ccc; }
 table.log tr td { padding: 4px; font-size: 13px; }
+table.log tr td a { color: #117; text-decoration: none; font: 1em Andale Mono, monospace; }
+
 
 #refs { margin-top: 25px; }
 .refs h2 { border-bottom: 1px solid #aaa;
@@ -52,7 +57,7 @@ table.log tr td { padding: 4px; font-size: 13px; }
             margin-top: 10px; }
 .refs tr td { padding: 3px; }
 
-.readme { padding: 20px; background: #eee; }
+.blob { padding: 20px; background: #eee; }
 
 #info .date { color: #000; }
 
@@ -65,6 +70,6 @@ table.log tr td { padding: 4px; font-size: 13px; }
     vertical-align: center;
 }
 
-#ft { margin-top: 15px; text-align: center; border-top: 1px solid #ddd; padding: 10px;}
+#ft { margin-top: 25px; text-align: center; border-top: 1px solid #ddd; padding: 10px;}
 #ft a { color: #338; }
 

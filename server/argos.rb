@@ -5,14 +5,32 @@ require 'sinatra'
 require 'lib/agitmemnon'
 require 'cgi'
 
-def gravatar_url_for(email, size = 30)
+
+
+def gravatar(email, size = 30)
   gid = Digest::MD5.hexdigest(email.to_s.strip.downcase)
-  "http://www.gravatar.com/avatar/#{gid}?s=#{size}&d=http%3A%2F%2Fgithub.com%2Fimages%2Fgravatars%2Fgravatar-#{size}.png"
+  url = "http://www.gravatar.com/avatar/#{gid}?s=#{size}&d=http%3A%2F%2Fgithub.com%2Fimages%2Fgravatars%2Fgravatar-#{size}.png"
+  "<img title=\"#{email}\" src=\"#{url}\">"
 end
 
 get '/' do
   @repo_list = Agitmemnon::Client.repo_list
   erb :index
+end
+
+get '/*/refs' do
+  @tab = 'refs'
+  @repo_name = params[:splat].first
+  @repo = Agitmemnon::Client.new(@repo_name)
+  erb :refs
+end
+
+get '/*/log/:sha' do
+  @tab = 'log'
+  @repo_name = params[:splat].first
+  @repo = Agitmemnon::Client.new(@repo_name)
+  @commit = @repo.commit(params[:sha])
+  erb :log
 end
 
 get '/*/log' do
@@ -23,11 +41,33 @@ get '/*/log' do
   erb :log
 end
 
-get '/*/refs' do
-  @tab = 'refs'
+get '/*/commit/:sha' do
+  @tab = 'source'
   @repo_name = params[:splat].first
   @repo = Agitmemnon::Client.new(@repo_name)
-  erb :refs
+  @commit = @repo.commit(params[:sha])
+  @tree = @commit.tree
+  erb :repo
+end
+
+get '/*/commit/:sha/*/:object_sha' do
+  @tab = 'source'
+  @repo_name = params[:splat][0]
+  @repo = Agitmemnon::Client.new(@repo_name)
+  @path = params[:splat][1]
+  @commit = @repo.commit(params[:sha])
+  @object = @repo.get(params[:object_sha])
+  if @object['type'] == 'tree'
+    @tree = JSON.parse(@object['json'])
+    erb :repo
+  else
+    @data = Agitmemnon::Client.expand(@object['data'])
+    erb :blob
+  end
+end
+
+get '/a' do
+  erb :admin
 end
 
 get '/*' do
@@ -35,10 +75,7 @@ get '/*' do
   @repo_name = params[:splat].first
   @repo = Agitmemnon::Client.new(@repo_name)
   @commit = @repo.head_commit
+  @tree = @commit.tree
   erb :repo
-end
-
-get '/a' do
-  erb :admin
 end
 

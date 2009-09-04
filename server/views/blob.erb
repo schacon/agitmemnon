@@ -1,0 +1,14 @@
+<div id="bd" role="main">
+
+  <%= erb(:project_head, :layout => false) %>
+
+  <% if @path %>
+    <h2 class="path"><%= @path %></h2>
+  <% end %>
+
+  <div class="yui-g blob">
+    <pre><%= @data %></pre>
+  </div>
+
+</div>
+

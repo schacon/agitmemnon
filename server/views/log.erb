@@ -1,30 +1,15 @@
 <div id="bd" role="main">
-  <div class="yui-g centered" id="project">
-    <%= @repo_name %>
-  </div>
 
-  <div class="yui-g centered" id="clone-url">
-    <span class="url">git://x.github.com/<%= @repo_name %></span>
-  </div>
-
-  <div class="yui-g last-commit">
-    <div class="yui-u first" id="info">
-      <img src="<%= gravatar_url_for(@commit.author_email, 18) %>">
-      <span class="date"><%= @commit.author_time.strftime("%m/%d") %></span> -
-      <span class="message"><%= @commit.short_message %></span>
-    </div>
-    <div class="yui-u first" id="sha">
-      <%= @commit.sha[0, 8] %>
-    </div>
-  </div>
+  <%= erb(:project_head, :layout => false) %>
 
   <div class="yui-g logs">
     <table width="100%" class="log">
-    <% @repo.log({:count => 100}).each do |sha, commit| %>
+    <% @repo.log(@commit.sha, {:count => 100}).each do |sha, commit| %>
       <% m, name, email, time = *commit['author'].match(/(.*) <(.+?)> (.+?) (.*)/) %>
       <tr>
-        <td><code><%= sha[0, 10] %></code></td>
+        <td><code><a href="/<%= @repo_name %>/commit/<%= sha %>"><%= sha[0, 10] %></a></code></td>
         <td><%= Time.at(time.to_i).strftime("%m/%d") %></td>
+        <td><%= gravatar(email, 18) %></td>
         <td><%= name.split(' ').first %></td>
         <td><%= commit['message'][0, 60] %></td>
       </tr>

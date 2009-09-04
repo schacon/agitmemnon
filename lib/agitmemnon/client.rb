@@ -9,7 +9,7 @@ module Agitmemnon
         @data = JSON.parse(@client.get(:Objects, sha, 'json'))
       end
       def short_message
-        @data['message'][0, 100]
+        @data['message'].split("\n").first[0, 100]
       end
       def author_info
          m, name, email, time = *@data['author'].match(/(.*) <(.+?)> (.+?) (.*)/)
@@ -28,13 +28,19 @@ module Agitmemnon
       end
       def readme
         @tree ||= tree
-        if readme_sha = tree['README']['sha']
-          return Zlib::Inflate.inflate(Base64.decode64(@client.get(:Objects, readme_sha, 'data')))
+        readme_sha = tree['README']['sha'] rescue nil
+        if readme_sha
+          readme = Client.expand(@client.get(:Objects, readme_sha, 'data'))
+          return readme
         end
       end
     end
 
     attr_accessor :client, :repo_handle
+
+    def self.expand(data)
+      Zlib::Inflate.inflate(Base64.decode64(data)) rescue ''
+    end
 
     def initialize(repo_handle)
       raise if repo_handle == '__main_listing__'  # reserved word
@@ -52,9 +58,13 @@ module Agitmemnon
     end
 
     def head
-      head = self.refs['meta']['HEAD']
+      head = self.refs['meta']['HEAD'] rescue nil
       head = self.refs['heads'].to_a.first[1] if !head
       head
+    end
+
+    def commit(sha)
+      Client::Commit.new(@client, sha)
     end
 
     def head_commit
@@ -78,10 +88,10 @@ module Agitmemnon
       tree = JSON.parse(tree).sort
     end
 
-    def log(options = {})
+    def log(start = nil, options = {})
       options = {:count => 30}.merge(options)
-
-      shas = [self.head]
+      start = self.head unless start
+      shas = [start]
       commits = []
       while (sha = shas.pop) && (commits.size < options[:count])
         if commit = @client.get(:Objects, sha.to_s, 'json')

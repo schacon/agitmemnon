@@ -16,10 +16,15 @@
       <% if @repo %>
       <div class="yui-u" id="menu">
         <ul class="<%= @tab %>">
-          <li id='source'><a href="/<%= @repo_name %>">source</a></li>
-          <li id='log'><a href="/<%= @repo_name %>/log">log</a></li>
+          <% if @commit %>
+            <li id='source'><a href="/<%= @repo_name %>/commit/<%= @commit.sha %>">source</a></li>
+            <li id='log'><a href="/<%= @repo_name %>/log/<%= @commit.sha %>">log</a></li>
+          <% else %>
+            <li id='source'><a href="/<%= @repo_name %>">source</a></li>
+            <li id='log'><a href="/<%= @repo_name %>/log">log</a></li>
+          <% end %>
           <li id='refs'><a href="/<%= @repo_name %>/refs">refs</a></li>
-          <li><a href="#">github</a></li>
+          <li><a href="http://github.com/<%= @repo_name %>">github</a></li>
         </ul>
       </div>
       <% end %>

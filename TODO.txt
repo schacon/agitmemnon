@@ -2,8 +2,6 @@ VERSION 1:
 
 * make the trees drill-down
 
-* re-focus on another commit
-
 
 * commit ranges
 
@@ -16,6 +14,5 @@ VERSION 2:
 
 * large object sharding
 
-* git-daemon that serves
-
 * tarball
+

@@ -1,41 +1,36 @@
 <div id="bd" role="main">
-  <div class="yui-g centered" id="project">
-    <%= @repo_name %>
-  </div>
 
-  <div class="yui-g centered" id="clone-url">
-    <span class="url">git://x.github.com/<%= @repo_name %></span>
-  </div>
+  <%= erb(:project_head, :layout => false) %>
 
-  <div class="yui-g last-commit">
-    <div class="yui-u first" id="info">
-      <img src="<%= gravatar_url_for(@commit.author_email, 18) %>">
-      <span class="date"><%= @commit.author_time.strftime("%m/%d") %></span> -
-      <span class="message"><%= @commit.short_message %></span>
-    </div>
-    <div class="yui-u first" id="sha">
-      <%= @commit.sha[0, 8] %>
-    </div>
-  </div>
+  <% if @path %>
+    <h2 class="path"><%= @path %>/</h2>
+  <% end %>
 
   <div class="yui-g files">
-    <ul>
-      <% @commit.tree.sort.each do |file, info| %>
-        <li>
+    <table>
+      <% @tree.sort.each do |file, info| %>
+        <tr>
+          <td>
           <% if info['type'] == 'tree' %>
             <img src="/img/dir.png">
           <% else %>
             <img src="/img/txt.png">
           <% end %>
-          <a href="#"><%= file %></a>
-        </li>
+          </td>
+          <!-- <td><span class="entry-mode"><%= info['mode'] %></span></td> -->
+          <% path = @path ? File.join(@path, file) : file %>
+          <td><a href="/<%= @repo_name %>/commit/<%= @commit.sha %>/<%= path %>/<%= info['sha'] %>"><%= file %></a></td>
+          <td width="90%" align="right"><span class="entry-sha"><%= info['sha'][0,10] %></span></td>
+        </tr>
       <% end %>
-    </ul>
+    </table>
   </div>
 
-  <div class="yui-g readme">
-    <pre><%= @commit.readme %></pre>
-  </div>
+  <% if rm = @commit.readme %>
+    <div class="yui-g blob">
+      <pre><%= rm %></pre>
+    </div>
+  <% end %>
 
 </div>
 

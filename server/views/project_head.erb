@@ -1,0 +1,21 @@
+<div class="yui-g centered" id="project">
+  <%= @repo_name %>
+</div>
+
+<div class="yui-g centered" id="clone-url">
+  <span class="url">git://x.github.com/<%= @repo_name %></span>
+</div>
+
+<% if @commit %>
+<div class="yui-g last-commit">
+  <div class="yui-u first" id="info">
+    <%= gravatar(@commit.author_email, 18) %>
+    <span class="date"><%= @commit.author_time.strftime("%m/%d") %></span> -
+    <span class="message"><%= @commit.short_message %></span>
+  </div>
+  <div class="yui-u first" id="sha">
+    <%= @commit.sha[0, 8] %>
+  </div>
+</div>
+<% end %>
+
