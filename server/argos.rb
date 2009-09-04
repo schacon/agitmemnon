@@ -5,8 +5,6 @@ require 'sinatra'
 require 'lib/agitmemnon'
 require 'cgi'
 
-
-
 def gravatar(email, size = 30)
   gid = Digest::MD5.hexdigest(email.to_s.strip.downcase)
   url = "http://www.gravatar.com/avatar/#{gid}?s=#{size}&d=http%3A%2F%2Fgithub.com%2Fimages%2Fgravatars%2Fgravatar-#{size}.png"
@@ -14,7 +12,6 @@ def gravatar(email, size = 30)
 end
 
 get '/' do
-  @repo_list = Agitmemnon::Client.repo_list
   erb :index
 end
 

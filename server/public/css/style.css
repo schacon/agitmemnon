@@ -4,6 +4,7 @@ body {
     margin: 0;
     padding: 0;
 }
+strong { font-weight: bold; }
 
 #doc { width: 750px; }
 #bd { background-color: #fff; }
@@ -72,4 +73,9 @@ table.log tr td a { color: #117; text-decoration: none; font: 1em Andale Mono, m
 
 #ft { margin-top: 25px; text-align: center; border-top: 1px solid #ddd; padding: 10px;}
 #ft a { color: #338; }
+
+#welcome { margin: 30px; padding: 10px; }
+#welcome h1 { text-align: center; font-size: 1.3em; margin-bottom: 20px; color: #000; }
+#welcome p { padding: 10px; color: #555; }
+#welcome pre.example { padding: 10px; text-align: center; background-color: #eee; }
 

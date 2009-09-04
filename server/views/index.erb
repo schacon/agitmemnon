@@ -1,12 +1,21 @@
-<div class="span-21" id="header">
-  <h1>Repositories</h1>
-</div>
 
-<div class="span-21">
-  <% @repo_list.each do |key, repo| %>
-    <%= Time.at(repo['updated']).strftime("%m/%d") rescue nil %>
-    <a href="/<%= key %>"><%= key %></a>
-    <br/>
-  <% end %>
+<div class="span-21" id="welcome">
+  <h1>Welcome to <strong>x.github</strong> - the experimental GitHub cloud.</h1>
+  <p>
+    X.GitHub is a Git server backed entirely by a Cassandra database cluster.
+    There is no filesystem access from the clones or the webpage views.  Currently
+    everything is public and read-only and nothing is authenticated.
+  </p>
+  <p> GitHub is currently mirroring all of our public, open-source projects here.
+    Feel free to clone from here instead of GitHub proper - simply add a '<strong>x.</strong>' to your
+    <code>git://</code> based clone URL.  For example:
+  </p>
+  <pre class="example">git clone git://x.github.com/mojombo/grit</pre>
+  <p>The entire site is open source - you can download the web frontend and
+    repository loading
+    code <a href="http://github.com/schacon/agitmemnon">here</a>, and you can
+    get the Cassandra-backed Git daemon code
+    <a href="http://github.com/schacon/agitmemnon-server">here</a>.
+  </p>
 </div>
 
