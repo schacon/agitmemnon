@@ -2,7 +2,11 @@
  "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
-   <title>x.github.com</title>
+   <% if @repo_name %>
+     <title>x.gh - <%= @repo_name %></title>
+   <% else %>
+     <title>x.github.com</title>
+   <% end %>
    <link rel="stylesheet" href="/css/reset-fonts-grids.css" type="text/css">
    <link rel="stylesheet" href="/css/style.css" type="text/css">
 </head>
