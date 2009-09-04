@@ -8,12 +8,15 @@ body {
 #doc { width: 750px; }
 #bd { background-color: #fff; }
 
-#project { 
+#project {
     font-size: 2.5em;
     font-weight: bold;
     margin-top: 10px;
     }
+
 #clone-url { font: 1em Andale Mono, monospace; margin-top: 8px; }
+#clone-url .url { background-color: #fda; padding: 3px; }
+
 #sha { text-align: right; font: 1.2em Andale Mono, monospace; }
 
 #hd { background-color: #eee; border-bottom: 1px solid #999; padding: 8px;}
@@ -21,13 +24,33 @@ body {
 #hd h1 #github { color: #35a;}
 #hd ul li { display: inline; }
 
-#hd #menu { text-align: right; }
+.source li#source a { color: #000 !important; font-weight:bold; }
+.log li#log a { color: #000 !important; font-weight:bold; }
+.refs li#refs a { color: #000 !important; font-weight:bold; }
+
+#hd #menu { text-align: right; margin-top: 10px; }
+#hd #menu ul li { padding-left: 10px; }
+#hd #menu ul li a { color:#336; text-decoration: none; }
+
 #ghlogo { text-align: right; }
 .centered { text-align: center; }
 
 .files { margin-top: 10px; margin-bottom: 10px; background-color: #eee;}
 .files ul li { padding: 5px; border-bottom: 1px solid #ddd; }
 .files a { color: #117; text-decoration: none; font: 1em Andale Mono, monospace; }
+
+
+.logs { background: #eee; margin-top: 10px; }
+table.log tr { border-bottom: 1px solid #ccc; }
+table.log tr td { padding: 4px; font-size: 13px; }
+
+#refs { margin-top: 25px; }
+.refs h2 { border-bottom: 1px solid #aaa;
+            background: #eee;
+            font-weight: bold;
+            padding: 5px 1px;
+            margin-top: 10px; }
+.refs tr td { padding: 3px; }
 
 .readme { padding: 20px; background: #eee; }
 
@@ -44,3 +67,4 @@ body {
 
 #ft { margin-top: 15px; text-align: center; border-top: 1px solid #ddd; padding: 10px;}
 #ft a { color: #338; }
+

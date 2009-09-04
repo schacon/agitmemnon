@@ -14,7 +14,7 @@ module Agitmemnon
     MAX_OBJ_SIZE = 100_000
     MAX_ROW_SIZE = 1_000_000
     MIN_ROW_SIZE = 100_000
-    
+
     SHA1Size = 20
 
     class PackFragment < StringIO
@@ -36,21 +36,21 @@ module Agitmemnon
           @base_sha = self.read(SHA1Size).unpack("H*").first
         end
       end
-      
+
       def get_raw
         self.seek(0)
         self.read
       end
-      
+
       def include?
         @objtype != OBJ_OFS_DELTA
       end
     end
-    
+
     attr_accessor :repo_handle, :grit, :client
 
     def initialize(repo_handle, path)
-      raise if repo_handle == '__main_listing__'  # reserved word      
+      raise if repo_handle == '__main_listing__'  # reserved word
       @client = Cassandra.new(Agitmemnon.table)
       @repo_handle = repo_handle
       @grit = Grit::Repo.new(path)
@@ -70,7 +70,7 @@ module Agitmemnon
       crefs = @client.get(:Repositories, @repo_handle)
       cass_refs = crefs.map { |t, hash| hash.map { |a, sha| sha } } rescue []
       cass_refs = cass_refs.flatten.uniq.select { |r| r.size == 40 }
-      
+
       # find all commits between that ref and the heads
       have_refs = (cass_refs - current_refs).map { |r| "^#{r}"}.join(' ')
       need_refs = (current_refs - cass_refs).join(' ')
@@ -78,7 +78,7 @@ module Agitmemnon
 
       puts 'HAVE:' + have_refs
       puts 'NEED:' + need_refs
-      
+
       load_objects(objects)
       if load_packfile
         load_packfile_caches
@@ -92,20 +92,20 @@ module Agitmemnon
 
       puts "Generating Packfile"
 
-      packname = @repo_handle + Digest::SHA1.hexdigest(Time.now().to_s)
+      packname = Digest::SHA1.hexdigest(@repo_handle + Time.now().to_s)
       packfile_pack = '/tmp/' + packname + '.pack'
       packfile_idx = '/tmp/' + packname + '.idx'
       Dir.chdir(@grit.path) do
         `git rev-list --objects master | git pack-objects --stdout > #{packfile_pack}`
         `git index-pack -o #{packfile_idx} #{packfile_pack}`
       end
-      
+
       pack = Grit::GitRuby::Internal::PackStorage.new(packfile_pack)
-      
+
       shas = {}
       pack_data = []
       total_size = File.size(packfile_pack) - 20
-      
+
       pack.each_entry do |sha, offset|
         sha = sha.unpack("H*").first
         pack_data << [offset, sha]
@@ -114,7 +114,7 @@ module Agitmemnon
       last = nil
       final = []
       pack_data = pack_data.sort
-      
+
       pack_data.each do |offset, sha|
         if last
           size = offset - last[0]
@@ -124,11 +124,11 @@ module Agitmemnon
       end
       size = total_size - last[0]
       final << [last[1], last[0], size]
-      
+
       cp = {'data' => '', 'size' => 0, 'count' => 0}
       cp_entries = ''
 
-      # read each of the objects and put them into a binary blob 
+      # read each of the objects and put them into a binary blob
       # to be sent to cassandra
       packfile = File.open(pack.name, 'rb')
       final.each do |sha, offset, size|
@@ -169,40 +169,42 @@ module Agitmemnon
 
     def load_objects(objects)
       # foreach object
+      total = 0
       objects.each do |sha|
         puts sha
         obj = @grit.git.ruby_git.get_raw_object_by_sha1(sha)
         #puts "#{obj.type}:#{obj.content.size}:#{sha}"
-        object = {'type' => obj.type.to_s, 
-                  'size' => obj.content.length.to_s, 
+        object = {'type' => obj.type.to_s,
+                  'size' => obj.content.length.to_s,
                   'data' => Base64.encode64(Zlib::Deflate.deflate(obj.content)) }
         if obj.type.to_s == 'commit'
           # save the jsonified version
           commit_hash = Grit::GitRuby::GitObject.from_raw(obj).to_hash
           object['json'] = commit_hash.to_json
-          @client.insert(:Objects, sha, object)      
-          
+          @client.insert(:Objects, sha, object)
+
           # save the commit diff
           #diff = grit.diff(sha, "#{sha}^")
           #@client.insert(:CommitDiffs, sha, {'diff' => diff}) # TODO : colored diff?
 
           # save the object and parentage list
           obs = @grit.diff_objects(sha, commit_hash['parents'].size > 0)
-          revtree = { 'parents' => commit_hash['parents'].join(":"), 
+          revtree = { 'parents' => commit_hash['parents'].join(":"),
                       'objects' => obs.join(":") }
+          total += obs.size
           @client.insert(:RevTree, @repo_handle, {sha => revtree})
         elsif obj.type.to_s == 'tree'
           json = Grit::GitRuby::GitObject.from_raw(obj).to_hash.to_json
           object['json'] = json
-          @client.insert(:Objects, sha, object)      
+          @client.insert(:Objects, sha, object)
         elsif obj.type.to_s == 'tag'
-          @client.insert(:Objects, sha, object)      
+          @client.insert(:Objects, sha, object)
         elsif obj.type.to_s == 'blob'
           # TODO check to see if this object is small enough, otherwise split it up
-          @client.insert(:Objects, sha, object)      
+          @client.insert(:Objects, sha, object)
         end
-      end      
-      
+      end
+      puts total
     end
 
     def update_refs
@@ -212,7 +214,7 @@ module Agitmemnon
       @grit.heads.each { |h| heads[h.name] = h.commit.id }
       @grit.tags.each { |h| tags[h.name] = h.commit.id }
       @grit.remotes.each { |h| remotes[h.name] = h.commit.id }
-      
+
       # TODO: master
       refs = {}
       refs['heads']   = heads   if heads.size > 0
@@ -222,10 +224,11 @@ module Agitmemnon
       @client.remove(:Repositories, @repo_handle)
       @client.insert(:Repositories, @repo_handle, refs)
     end
-    
+
     def update_repo_info
       @client.insert(:Repositories, '__main_listing__', {@repo_handle => {'updated' => Time.now.to_i.to_s}})
     end
 
   end
 end
+

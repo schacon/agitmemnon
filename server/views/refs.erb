@@ -1,0 +1,27 @@
+<div id="bd" role="main">
+  <div class="yui-g centered" id="project">
+    <%= @repo_name %>
+  </div>
+
+  <div class="yui-g centered" id="clone-url">
+    <span class="url">git://x.github.com/<%= @repo_name %></span>
+  </div>
+
+  <div class="yui-g" id="refs">
+    <center>
+    <table class="refs">
+    <% @repo.refs.each do |type, refs| %>
+      <% next if type == 'meta' %>
+      <tr><td colspan="2"><h2><%= type %></h2></td></tr>
+      <% refs.each do |ref, value| %>
+        <tr>
+          <td><%= ref %></td>
+          <td><code><%= value %></code></td>
+        </tr>
+      <% end %>
+    <% end %>
+    </table>
+    </center>
+  </div>
+</div>
+

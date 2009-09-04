@@ -7,8 +7,8 @@ require 'json'
 require 'pp'
 
 #require 'cassandra'
-require '/Users/schacon/projects/cassandra_client/lib/cassandra'
-require '/Users/schacon/projects/github/vendor/gems/grit/lib/grit'
+require '/opt/cassandra/lib/cassandra'
+require '/home/schacon/projects/grit/lib/grit'
 
 require 'agitmemnon/repo'
 require 'agitmemnon/client'
@@ -36,3 +36,4 @@ module Agitmemnon
     "#{yml[:major]}.#{yml[:minor]}.#{yml[:patch]}"
   end
 end
+

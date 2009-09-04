@@ -1,23 +1,41 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+ "http://www.w3.org/TR/html4/strict.dtd">
+<html>
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-  <title>Agitmemnon</title>
-  
-  <link type="text/css" href="/css/ui-lightness/jquery-ui-1.7.2.custom.css" rel="Stylesheet" />	
-  <script type="text/javascript" src="/js/jquery-1.3.2.min.js"></script>
-  <script type="text/javascript" src="/js/jquery-ui-1.7.2.custom.min.js"></script>
-  
-  <link rel="stylesheet" href="/css/screen.css" type="text/css" media="screen, projection">
-  <link rel="stylesheet" href="/css/style.css" type="text/css" media="screen" charset="utf-8"/>
+   <title>x.github.com</title>
+   <link rel="stylesheet" href="/css/reset-fonts-grids.css" type="text/css">
+   <link rel="stylesheet" href="/css/style.css" type="text/css">
 </head>
-
 <body>
-  <div class="container_12">
-
-    <%= yield %>
-
+<div id="doc" class="yui-t7">
+  <div id="hd" role="banner">
+    <div class="yui-g">
+      <div class="yui-u first" id="title">
+        <h1><span id="github">x</span>.github</span></h1>
+      </div>
+      <% if @repo %>
+      <div class="yui-u" id="menu">
+        <ul class="<%= @tab %>">
+          <li id='source'><a href="/<%= @repo_name %>">source</a></li>
+          <li id='log'><a href="/<%= @repo_name %>/log">log</a></li>
+          <li id='refs'><a href="/<%= @repo_name %>/refs">refs</a></li>
+          <li><a href="#">github</a></li>
+        </ul>
+      </div>
+      <% end %>
+    </div>
   </div>
+
+  <%= yield %>
+
+  <div id="ft" role="contentinfo">
+    <a href="http://github.com/blog">Blog</a> |
+    <a href="http://support.github.com">Support</a> |
+    <a href="http://github.com/training">Training</a> |
+    <a href="http://github.com/contact">Contact</a> |
+    <a href="http://github.com/help">Help</a>
+  </div>
+</div>
 </body>
 </html>
+

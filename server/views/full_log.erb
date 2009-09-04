@@ -1,0 +1,21 @@
+   <% @repo.log.each do |sha, commit| %>
+      <div class="grid_10 commit">
+        <div class="grid_7 alpha">
+          <div class="author">
+            Author: <%= CGI.escapeHTML(commit['author']) %><br/>
+            Commit: <%= CGI.escapeHTML(commit['committer']) %><br/>
+          </div>
+          <div class="message">
+            <%= commit['message'] %>
+          </div>
+        </div>
+        <div class="grid_3 omega" style="text-align:right">
+          commit <code><a onClick="showCommit('<%= sha %>')"><%= sha[0, 10] %></a></code><br/>
+          tree <code><%= commit['tree'][0, 10] %></code><br/>
+          <% commit['parents'].each do |parent| %>
+            parent <code><%= parent[0, 10] %></code><br/>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
