@@ -2,7 +2,7 @@
 
 require 'rubygems'
 require 'sinatra'
-require 'lib/agitmemnon'
+require '/home/git/agitmemnon/lib/agitmemnon'
 require 'cgi'
 
 def gravatar(email, size = 30)

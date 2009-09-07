@@ -7,8 +7,8 @@ require 'json'
 require 'pp'
 
 #require 'cassandra'
-require '/opt/cassandra/lib/cassandra'
-require '/home/schacon/projects/grit/lib/grit'
+require '/home/git/cassandra/lib/cassandra'
+require '/home/git/grit/lib/grit'
 
 require 'agitmemnon/repo'
 require 'agitmemnon/client'
