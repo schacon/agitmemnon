@@ -11,7 +11,7 @@ module Agitmemnon
     OBJ_OFS_DELTA = 6
     OBJ_REF_DELTA = 7
 
-    MAX_OBJ_SIZE = 100_000
+    MAX_OBJ_SIZE = 500_000
     MAX_ROW_SIZE = 1_000_000
     MIN_ROW_SIZE = 100_000
 
@@ -74,6 +74,7 @@ module Agitmemnon
       # find all commits between that ref and the heads
       have_refs = (cass_refs - current_refs).map { |r| "^#{r}"}.join(' ')
       need_refs = (current_refs - cass_refs).join(' ')
+
       objects = @grit.objects("#{need_refs} #{have_refs}")
 
       puts 'HAVE:' + have_refs
@@ -90,13 +91,15 @@ module Agitmemnon
       # add 1M at a time into cassandra
       # remove from objlist
 
+      @client.remove(:PackCacheIndex, @repo_handle)
+
       puts "Generating Packfile"
 
       packname = Digest::SHA1.hexdigest(@repo_handle + Time.now().to_s)
       packfile_pack = '/tmp/' + packname + '.pack'
       packfile_idx = '/tmp/' + packname + '.idx'
       Dir.chdir(@grit.path) do
-        `git rev-list --objects master | git pack-objects --stdout > #{packfile_pack}`
+        `git rev-list --objects --all | git pack-objects --window=250 --depth=250 --stdout > #{packfile_pack}`
         `git index-pack -o #{packfile_idx} #{packfile_pack}`
       end
 
@@ -147,6 +150,8 @@ module Agitmemnon
           cp['size'] += data.size
           cp['data'] += data.get_raw
           cp['count'] += 1
+        else
+          puts "TOO BIG: #{sha} (#{size})"
         end
       end
       save_data(cp, cp_entries)
