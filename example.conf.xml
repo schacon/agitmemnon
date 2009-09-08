@@ -1,9 +1,11 @@
-    <Keyspaces>
-        <Keyspace Name="Agitmemnon">
-            <ColumnFamily CompareWith="UTF8Type" Name="Objects"/>
-            <ColumnFamily ColumnType="Super" CompareWith="UTF8Type" CompareSubcolumnsWith="UTF8Type" Name="Repositories"/>
-            <ColumnFamily CompareWith="UTF8Type" Name="CommitDiffs"/>
-            <ColumnFamily ColumnType="Super" CompareWith="UTF8Type" CompareSubcolumnsWith="UTF8Type" Name="RevTree"/>
-            <ColumnFamily CompareWith="UTF8Type" Name="PackCache"/>
-        </Keyspace>
-    </Keyspaces>
+<Keyspaces>
+    <Keyspace Name="Agitmemnon">
+        <ColumnFamily CompareWith="UTF8Type" Name="Objects"/>
+        <ColumnFamily ColumnType="Super" CompareWith="UTF8Type" CompareSubcolumnsWith="UTF8Type" Name="Repositories"/>
+        <ColumnFamily CompareWith="UTF8Type" Name="CommitDiffs"/>
+        <ColumnFamily ColumnType="Super" CompareWith="UTF8Type" CompareSubcolumnsWith="UTF8Type" Name="RevTree"/>
+        <ColumnFamily CompareWith="UTF8Type" Name="PackCache"/>
+        <ColumnFamily CompareWith="UTF8Type" Name="PackCacheIndex"/>
+        <ColumnFamily CompareWith="UTF8Type" Name="ImportQueue"/>
+    </Keyspace>
+</Keyspaces>

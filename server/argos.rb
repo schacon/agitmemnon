@@ -7,8 +7,8 @@ require 'cgi'
 
 def gravatar(email, size = 30)
   gid = Digest::MD5.hexdigest(email.to_s.strip.downcase)
-  url = "http://www.gravatar.com/avatar/#{gid}?s=#{size}&d=http%3A%2F%2Fgithub.com%2Fimages%2Fgravatars%2Fgravatar-#{size}.png"
-  "<img title=\"#{email}\" src=\"#{url}\">"
+  url = "http://www.gravatar.com/avatar/#{gid}?s=#{size}&d=http%3A%2F%2Fgithub.com%2Fimages%2Fgravatars%2Fgravatar-20.png"
+  "<img width=\"#{size}\" title=\"#{email}\" src=\"#{url}\">"
 end
 
 get '/' do
